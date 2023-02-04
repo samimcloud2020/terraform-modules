@@ -1,0 +1,17 @@
+role----> aws account > admin access > rolename
+
+aws sts assume-role --role-arn arn:aws:iam::<AccountNumber>:role/marketing --role-session-name testing   <------specified time period only
+
+{
+    "Credentials": {
+        "AccessKeyId":
+        "SecretAccessKey":
+         "SessionToken": 
+         "Expiration": "2023-02-04T05:22:57+00:00"
+         },
+    "AssumedRoleUser": {
+        "AssumedRoleId": 
+        "Arn":
+            }
+}
+
