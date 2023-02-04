@@ -1,0 +1,83 @@
+S3
+Stores the state as a given key in a given bucket on Amazon S3. 
+
+This backend also supports state locking and consistency checking via Dynamo DB, 
+which can be enabled by setting the dynamodb_table field to an existing DynamoDB table name.
+
+A single DynamoDB table can be used to lock multiple remote state files. 
+Terraform generates key names that include the values of the bucket and key variables.
+
+Warning! It is highly recommended that you enable Bucket Versioning on the S3 bucket to allow for state recovery 
+in the case of accidental deletions and human error.
+
+terraform {
+  backend "s3" {
+    bucket = "mybucket"
+    key    = "path/to/my/key"
+    region = "us-east-1"
+  }
+}
+
+
+This assumes we have a bucket created called mybucket. 
+The Terraform state is written to the key path/to/my/key.
+
+S3 Bucket Permissions
+Terraform will need the following AWS IAM permissions on the target backend bucket:
+
+s3:ListBucket on arn:aws:s3:::mybucket
+s3:GetObject on arn:aws:s3:::mybucket/path/to/my/key
+s3:PutObject on arn:aws:s3:::mybucket/path/to/my/key
+s3:DeleteObject on arn:aws:s3:::mybucket/path/to/my/key
+
+This is seen in the following AWS IAM Statement:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::mybucket"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::mybucket/path/to/my/key"
+    }
+  ]
+}
+
+
+Note: AWS can control access to S3 buckets with either IAM policies attached to users/groups/roles (like the example above) or 
+resource policies attached to bucket objects (which look similar but also require a Principal to indicate which entity has those permissions).
+For more details, see Amazon's documentation about S3 access control.
+
+DynamoDB Table Permissions
+If you are using state locking, Terraform will need the following AWS IAM permissions on the DynamoDB table (arn:aws:dynamodb:::table/mytable):
+
+dynamodb:DescribeTable
+dynamodb:GetItem
+dynamodb:PutItem
+dynamodb:DeleteItem
+
+This is seen in the following AWS IAM Statement:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/mytable"
+    }
+  ]
+}
+
+
+
