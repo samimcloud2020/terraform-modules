@@ -1,0 +1,7 @@
+when call from Root module to Child module:----
+what parameter pass by root module is override child module.
+
+
+provide.tf, version.tf in root module & call to child module.
+
+output of child module exported by root module by module.<module name used by root module>.<output resource defined name of child module>
